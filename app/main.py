@@ -1,2 +1,45 @@
+from typing import Any
+
+
 class Dictionary:
-    pass
+    def __init__(self) -> None:
+        self.hash_table: list = [None] * 8
+        self.length = 0
+
+    def __len__(self) -> int:
+        return self.length
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self.__insert(key, value)
+        if len(self) > len(self.hash_table) * 2 / 3:
+            self.__resize()
+
+    def __getitem__(self, key: Any) -> Any:
+        index = hash(key) % len(self.hash_table)
+        while self.hash_table[index]:  # O(1)???
+            node = self.hash_table[index]
+            if node[1] == hash(key) and node[0] == key:
+                return node[2]
+            index = (index + 1) % len(self.hash_table)
+        raise KeyError(key)
+
+    def __resize(self) -> None:
+        nodes = [node for node in self.hash_table if node]
+        self.hash_table = ([None] * len(self.hash_table)) + (
+            [None] * (len(self.hash_table) // 2)
+        )
+        self.length = 0
+        for node in nodes:
+            self.__insert(key=node[0], value=node[2])
+
+    def __insert(self, key: Any, value: Any) -> None:
+        hash_ = hash(key)
+        index = hash_ % len(self.hash_table)
+        while self.hash_table[index]:  # O(1)???
+            node = self.hash_table[index]
+            if node[1] == hash_ and node[0] == key:
+                self.hash_table[index] = (key, hash_, value)
+                return
+            index = (index + 1) % len(self.hash_table)
+        self.hash_table[index] = (key, hash_, value)
+        self.length += 1
