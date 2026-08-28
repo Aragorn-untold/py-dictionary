@@ -10,9 +10,9 @@ class Dictionary:
         return self.length
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        self.__insert(key, value)
-        if len(self) > len(self.hash_table) * 2 / 3:
+        if len(self) > len(self.hash_table) * (2 / 3):
             self.__resize()
+        self.__insert(key, value)
 
     def __getitem__(self, key: Any) -> Any:
         index = hash(key) % len(self.hash_table)
@@ -75,8 +75,27 @@ class Dictionary:
             if node[1] == hash(key) and node[0] == key:
                 value = node[2]
                 self.hash_table[index] = None
+                self.length -= 1
                 return value
             index = (index + 1) % len(self.hash_table)
         if default is not None:
             return default
         raise KeyError(key)
+
+    def update(
+        self, argument: dict | list[tuple[Any, Any]] = None, **kwargs
+    ) -> None:
+        if argument:
+            if isinstance(argument, dict):
+                args = argument.items()
+            elif isinstance(argument, list):
+                args = argument
+            else:
+                raise TypeError(
+                    "Argument must be a dict or list of key-value tuples"
+                )
+            for key, value in args:
+                self.__insert(key, value)
+        if kwargs:
+            for key, value in kwargs.items():
+                self.__insert(key, value)
