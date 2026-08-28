@@ -16,7 +16,7 @@ class Dictionary:
 
     def __getitem__(self, key: Any) -> Any:
         index = hash(key) % len(self.hash_table)
-        while self.hash_table[index]:  # O(1)???
+        while self.hash_table[index]:
             node = self.hash_table[index]
             if node[1] == hash(key) and node[0] == key:
                 return node[2]
@@ -35,7 +35,7 @@ class Dictionary:
     def __insert(self, key: Any, value: Any) -> None:
         hash_ = hash(key)
         index = hash_ % len(self.hash_table)
-        while self.hash_table[index]:  # O(1)???
+        while self.hash_table[index]:
             node = self.hash_table[index]
             if node[1] == hash_ and node[0] == key:
                 self.hash_table[index] = (key, hash_, value)
@@ -43,3 +43,40 @@ class Dictionary:
             index = (index + 1) % len(self.hash_table)
         self.hash_table[index] = (key, hash_, value)
         self.length += 1
+
+    def clear(self) -> None:
+        self.hash_table = [None] * 8
+        self.length = 0
+
+    def __delitem__(self, key: Any) -> None:
+        index = hash(key) % len(self.hash_table)
+        while self.hash_table[index]:
+            node = self.hash_table[index]
+            if node[1] == hash(key) and node[0] == key:
+                self.hash_table[index] = None
+                self.length -= 1
+                return
+            index = (index + 1) % len(self.hash_table)
+        raise KeyError(key)
+
+    def get(self, key: Any, default: Any = None) -> Any:
+        index = hash(key) % len(self.hash_table)
+        while self.hash_table[index]:
+            node = self.hash_table[index]
+            if node[1] == hash(key) and node[0] == key:
+                return node[2]
+            index = (index + 1) % len(self.hash_table)
+        return default
+
+    def pop(self, key: Any, default: Any = None) -> Any:
+        index = hash(key) % len(self.hash_table)
+        while self.hash_table[index]:
+            node = self.hash_table[index]
+            if node[1] == hash(key) and node[0] == key:
+                value = node[2]
+                self.hash_table[index] = None
+                return value
+            index = (index + 1) % len(self.hash_table)
+        if default is not None:
+            return default
+        raise KeyError(key)
